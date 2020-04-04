@@ -1,0 +1,23 @@
+{
+  "name": "guesswhogame",
+  "version": "1.0.0",
+  "description": "Guess who Game with custom cahracters",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jakebeckstrom/GuessWhoGame.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jakebeckstrom/GuessWhoGame/issues"
+  },
+  "homepage": "https://github.com/jakebeckstrom/GuessWhoGame#readme",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
+}
