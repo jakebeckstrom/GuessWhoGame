@@ -10,8 +10,8 @@ router.get('/Brooklyn', function(req, res, next) {
 
   dir = path.join(dirPath, 'BrooklynCharSet');
   let images = [];
-
-  fs.readdir(dir, function (err, files) {
+  
+  fs.readdir(require.resolve("./BrooklynCharSet"), function (err, files) {
     if (err) {
       console.log(err);
     }
