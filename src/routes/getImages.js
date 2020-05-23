@@ -3,7 +3,7 @@ var path = require('path');
 var fs = require('fs');
 var router = express.Router();
 
-const dirPath = path.join('./', 'public');
+const dirPath = path.join('dist/', 'public');
 var setChosen = false;
 
 
