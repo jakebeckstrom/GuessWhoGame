@@ -3,14 +3,14 @@ var path = require('path');
 var fs = require('fs');
 var router = express.Router();
 
-const dirPath = path.join('dist/', 'public');
+const dirPath = path.join('./', 'public');
 var setChosen = false;
 
 
 router.get('/', function(req, res, next) {
   var response = contents;
   res.send(JSON.stringify(
-    {"cwd": response}
+    {"cwd": dirPath}
   ));
 });
 
