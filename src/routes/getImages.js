@@ -11,7 +11,7 @@ router.get('/Brooklyn', function(req, res, next) {
   dir = path.join(dirPath, 'BrooklynCharSet');
   let images = [];
   
-  fs.readdir(require.resolve("/opt/build/repo/functions/public/BrooklynCharSet"), function (err, files) {
+  fs.readdir(require.resolve("./public/BrooklynCharSet"), function (err, files) {
     if (err) {
       console.log(err);
     }
