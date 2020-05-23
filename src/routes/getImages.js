@@ -5,7 +5,7 @@ var router = express.Router();
 
 const dirPath = path.join(__dirname, 'public');
 var setChosen = false;
-const contents = fs.readFileSync(require.resolve('./public/BrooklynCharSet/Caleb.png'));
+
 
 router.get('/', function(req, res, next) {
   var response = contents;
