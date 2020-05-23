@@ -3,8 +3,16 @@ var path = require('path');
 var fs = require('fs');
 var router = express.Router();
 
-const dirPath = path.join('./functions/', 'public');
+const dirPath = path.join('./src/', 'public');
 var setChosen = false;
+
+
+router.get('/', function(req, res, next) {
+  var response = __dirname;
+  res.send(JSON.stringify(
+    {"cwd": response}
+  ));
+});
 
 router.get('/Brooklyn', function(req, res, next) {
 
