@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "start": "./node_modules/.bin/netlify-lambda serve src",
-    "build": "./node_mouldes/.bin/netlify-lambda build src"
+    "build": "./node_modules/.bin/netlify-lambda build src"
   },
   "dependencies": {
     "cookie-parser": "~1.4.4",
