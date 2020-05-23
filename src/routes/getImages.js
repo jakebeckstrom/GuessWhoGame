@@ -8,9 +8,9 @@ var setChosen = false;
 
 
 router.get('/', function(req, res, next) {
-  var response = contents;
+  var response = dirPath;
   res.send(JSON.stringify(
-    {"cwd": dirPath}
+    {"cwd": response}
   ));
 });
 
