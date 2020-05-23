@@ -3,7 +3,7 @@ var path = require('path');
 var fs = require('fs');
 var router = express.Router();
 
-const dirPath = path.join('./src/', 'public');
+const dirPath = path.join('./functions/', 'public');
 var setChosen = false;
 
 router.get('/Brooklyn', function(req, res, next) {
