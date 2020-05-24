@@ -4,6 +4,7 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var cors = require('cors');
+const serverless = require('serverless-http');
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
@@ -15,8 +16,8 @@ var nameRouter = require('./routes/name');
 var app = express();
 
 // view engine setup
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'jade');
+// app.set('views', path.join(__dirname, 'views'));
+// app.set('view engine', 'jade');
 
 app.use(cors());
 app.use(logger('dev'));
@@ -29,12 +30,12 @@ app.use('/WalkingDead', express.static(path.join('./', 'public/WalkingDeadCharSe
 app.use('/Brooklyn', express.static(path.join('./', 'public/BrooklynCharSet')));
 
 
-app.use('/', indexRouter);
-app.use('/users', usersRouter);
-app.use('/testAPI', testAPIRouter);
-app.use('/getImages', getImagesRouter);
-app.use('/getChar', getCharRouter);
-app.use('/name', nameRouter);
+app.use('/.netlify/functions/app', indexRouter);
+app.use('/.netlify/functions/app/users', usersRouter);
+app.use('/.netlify/functions/app/testAPI', testAPIRouter);
+app.use('/.netlify/functions/app/getImages', getImagesRouter);
+app.use('/.netlify/functions/app/getChar', getCharRouter);
+app.use('/.netlify/functions/app/name', nameRouter);
 
 
 // catch 404 and forward to error handler
@@ -50,7 +51,7 @@ app.use(function(err, req, res, next) {
 
   // render the error page
   res.status(err.status || 500);
-  res.render('error');
+  res.send('error');
 });
 
-module.exports = app;
+module.exports.handler = serverless(app);

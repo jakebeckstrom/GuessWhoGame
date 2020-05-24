@@ -3,14 +3,22 @@ var path = require('path');
 var fs = require('fs');
 var router = express.Router();
 
-const dirPath = path.join('./', 'public');
+const dirPath = path.join('functions', 'public');
 var setChosen = false;
+
+
+router.get('/', function(req, res, next) {
+  var response = dirPath;
+  res.send(JSON.stringify(
+    {"cwd": response}
+  ));
+});
 
 router.get('/Brooklyn', function(req, res, next) {
 
   dir = path.join(dirPath, 'BrooklynCharSet');
   let images = [];
-
+  
   fs.readdir(dir, function (err, files) {
     if (err) {
       console.log(err);
