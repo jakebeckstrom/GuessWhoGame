@@ -21,9 +21,9 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use('/public', express.static(path.join('./', 'public')));
-// app.use('/Office', express.static(path.join('./', 'public/OfficeCharSet')));
-// app.use('/WalkingDead', express.static(path.join('./', 'public/WalkingDeadCharSet')));
-// app.use('/Brooklyn', express.static(path.join('./', 'public/BrooklynCharSet')));
+app.use('/Office', express.static(path.join('./', 'public/Office')));
+app.use('/WalkingDead', express.static(path.join('./', 'public/WalkingDead')));
+app.use('/Brooklyn', express.static(path.join('./', 'public/Brooklyn')));
 
 
 app.use('/testAPI', testAPIRouter);
