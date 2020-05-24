@@ -5,12 +5,9 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var cors = require('cors');
 
-var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
 var testAPIRouter = require('./routes/testAPI');
 var getImagesRouter = require('./routes/getImages');
 var getCharRouter = require('./routes/getChar');
-var nameRouter = require('./routes/name');
 
 var app = express();
 
@@ -24,17 +21,14 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use('/public', express.static(path.join('./', 'public')));
-app.use('/Office', express.static(path.join('./', 'public/OfficeCharSet')));
-app.use('/WalkingDead', express.static(path.join('./', 'public/WalkingDeadCharSet')));
-app.use('/Brooklyn', express.static(path.join('./', 'public/BrooklynCharSet')));
+// app.use('/Office', express.static(path.join('./', 'public/OfficeCharSet')));
+// app.use('/WalkingDead', express.static(path.join('./', 'public/WalkingDeadCharSet')));
+// app.use('/Brooklyn', express.static(path.join('./', 'public/BrooklynCharSet')));
 
 
-app.use('/', indexRouter);
-app.use('/users', usersRouter);
 app.use('/testAPI', testAPIRouter);
 app.use('/getImages', getImagesRouter);
 app.use('/getChar', getCharRouter);
-app.use('/name', nameRouter);
 
 
 // catch 404 and forward to error handler
