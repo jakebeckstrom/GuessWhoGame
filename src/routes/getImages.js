@@ -6,7 +6,6 @@ var router = express.Router();
 const dirPath = path.join('./', 'public');
 var setChosen = "";
 
-
 router.get('/', function(req, res, next) {
   if (setChosen !== "") {
 
@@ -30,6 +29,26 @@ router.get('/', function(req, res, next) {
     ));
   }
 });
+
+router.get('/getSets', function(req, res, next) {
+  let sets = [];
+  fs.readdir(dirPath, {withFileTypes: true}, function(err, dirs) {
+    if (err) {
+      console.log(err);
+    }
+
+    dirs.forEach(function (ent) {
+      if (ent.isDirectory()) {
+        sets.push(ent.name);
+      }
+    });
+    res.setHeader('Content-Type', 'application/json');
+    res.end(JSON.stringify({sets}))
+  })
+
+});
+
+
 
 router.get('/getChoice', function(req, res, next) {
   // console.log("Send choice");
