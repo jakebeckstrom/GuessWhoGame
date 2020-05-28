@@ -41,6 +41,7 @@ router.get('/getSets', function(req, res, next) {
       if (ent.isDirectory()) {
         sets.push({
           key: ent.name,
+          value: ent.name,
           text: ent.name
         });
       }
