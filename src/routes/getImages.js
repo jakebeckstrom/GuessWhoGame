@@ -39,7 +39,10 @@ router.get('/getSets', function(req, res, next) {
 
     dirs.forEach(function (ent) {
       if (ent.isDirectory()) {
-        sets.push(ent.name);
+        sets.push({
+          key: ent.name,
+          text: ent.name
+        });
       }
     });
     res.setHeader('Content-Type', 'application/json');
