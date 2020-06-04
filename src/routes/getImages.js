@@ -1,7 +1,10 @@
 var express = require('express');
 var path = require('path');
 var fs = require('fs');
+var multer = require('multer');
 var router = express.Router();
+
+
 
 const dirPath = path.join('./', 'public');
 var setChosen = "";
@@ -38,7 +41,7 @@ router.get('/getSets', function(req, res, next) {
     }
 
     dirs.forEach(function (ent) {
-      if (ent.isDirectory()) {
+      if (ent.isDirectory() && ent.name !== 'temp') {
         sets.push({
           key: ent.name,
           value: ent.name,
@@ -52,17 +55,12 @@ router.get('/getSets', function(req, res, next) {
 
 });
 
-
-
 router.get('/getChoice', function(req, res, next) {
-  // console.log("Send choice");
-  // console.log(setChosen);
   res.setHeader('Content-Type', 'application/json');
     res.send(JSON.stringify({ setChosen }));
 });
 
 router.get('/reset', function(req, res, next) {
-  // console.log("reset");
   setChosen = "";
   let message = "Successful" + setChosen;
   res.setHeader('Content-Type', 'application/json');
@@ -76,6 +74,46 @@ router.post('/setChoice', function(req, res) {
   let message = "Successful" + setChosen;
   res.setHeader('Content-Type', 'application/json');
     res.send(JSON.stringify({ message }));
+})
+
+//Storage functions
+var storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, path.join('public', 'temp'));
+  },
+  filename: (req, file, cb) => {
+    cb(null, file.originalname);
+  }
+});
+
+const upload = multer({
+  storage
+})
+
+router.post('/uploadSet', upload.array("image", 24), (req, res) => {
+  console.log(req.body.setName);
+  let name = req.body.setName;
+  fs.mkdir(path.join(dirPath, name), (err) => {
+    if (err) {
+      console.log(err);
+    }
+  });
+
+  fs.readdir(path.join(dirPath, 'temp'), function (err, files) {
+    if (err) {
+      console.log(err);
+    }
+
+    files.map((file) => {
+      fs.rename(path.join(dirPath, 'temp', file), path.join(dirPath, name, file), (err) => {
+        console.log(err);
+      });
+    });
+  });
+
+    res.json({
+      Resp: "success"
+    })
 })
 
 module.exports = router;

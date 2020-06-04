@@ -4,6 +4,7 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var cors = require('cors');
+var bodyParser = require('body-parser')
 
 var testAPIRouter = require('./routes/testAPI');
 var getImagesRouter = require('./routes/getImages');
@@ -16,6 +17,7 @@ app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
 
 app.use(cors());
+app.use(bodyParser.urlencoded({extended: false}))
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
