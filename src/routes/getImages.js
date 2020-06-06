@@ -8,6 +8,7 @@ var router = express.Router();
 
 const dirPath = path.join('./', 'public');
 var setChosen = "";
+const secretKey = 'lilbean2020';
 
 router.get('/', function(req, res, next) {
   if (setChosen !== "") {
@@ -73,7 +74,19 @@ router.post('/setChoice', function(req, res) {
   setChosen = req.body.set;
   let message = "Successful" + setChosen;
   res.setHeader('Content-Type', 'application/json');
-    res.send(JSON.stringify({ message }));
+  res.send(JSON.stringify({ message }));
+})
+
+router.post('/checkKey', function(req, res) {
+  let key = req.body.secretKey;
+  console.log(req.body);
+  if (key === secretKey) {
+    res.setHeader('Content-Type', 'application/json');
+    res.send(JSON.stringify({ auth: true }));
+  } else {
+    res.setHeader('Content-Type', 'application/json');
+    res.send(JSON.stringify({ auth:false }));
+  }
 })
 
 //Storage functions
@@ -91,7 +104,6 @@ const upload = multer({
 })
 
 router.post('/uploadSet', upload.array("image", 24), (req, res) => {
-  console.log(req.body.setName);
   let name = req.body.setName;
   fs.mkdir(path.join(dirPath, name), (err) => {
     if (err) {
