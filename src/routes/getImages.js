@@ -128,4 +128,17 @@ router.post('/uploadSet', upload.array("image", 24), (req, res) => {
     })
 })
 
+router.post('/removeSet', (req, res) => {
+  let name = req.body.rname;
+  fs.rmdir(path.join(dirPath, name), { recursive:true },function(err) {
+    if (err) {
+      console.log(err);
+    } else {
+      res.json({
+        Resp: "success"
+      })
+    }
+  })
+})
+
 module.exports = router;
