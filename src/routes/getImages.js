@@ -3,27 +3,34 @@ var path = require('path');
 var fs = require('fs');
 var multer = require('multer');
 var router = express.Router();
+var AWS = require('aws-sdk');
+var dotenv = require('dotenv').config();
 
 
 
 const dirPath = path.join('./', 'public');
 var setChosen = "";
 const secretKey = 'lilbean2020';
+const BUCKET = 'guess-who-static-files';
 
 router.get('/', function(req, res, next) {
   if (setChosen !== "") {
 
-    dir = path.join(dirPath, setChosen);
     let images = [];
-    
-    fs.readdir(dir, function (err, files) {
-      if (err) {
-        console.log(err);
-      }
+    let s3bucket = new AWS.S3();
+    var params = {
+      Bucket: process.env.AWS_BUCKET_NAME,
+      Prefix: setChosen
+    };
 
-      files.forEach(function (file) {
-        images.push(file);
-      })
+    s3bucket.listObjects(params, function(err, data) {
+      if (err) console.log(err);
+      
+      data.Contents.forEach(function(content) {
+        images.push(content.Key);
+      });
+
+      console.log(images);
       res.setHeader('Content-Type', 'application/json');
       res.end(JSON.stringify({ images }));
     });
@@ -36,24 +43,25 @@ router.get('/', function(req, res, next) {
 
 router.get('/getSets', function(req, res, next) {
   let sets = [];
-  fs.readdir(dirPath, {withFileTypes: true}, function(err, dirs) {
-    if (err) {
-      console.log(err);
-    }
-
-    dirs.forEach(function (ent) {
-      if (ent.isDirectory() && ent.name !== 'temp') {
-        sets.push({
-          key: ent.name,
-          value: ent.name,
-          text: ent.name
-        });
-      }
+  let s3bucket = new AWS.S3();
+  var params = {
+    Bucket: process.env.AWS_BUCKET_NAME,
+    MaxKeys: 20,
+    Delimiter: '/'
+  };
+  
+  s3bucket.listObjectsV2(params, function(err, data) {
+    if (err) console.log(err);
+    console.log(data);
+    data.CommonPrefixes.forEach(function(content) {
+      sets.push({ key: content.Prefix.slice(0, -1),
+              text: content.Prefix.slice(0, -1),
+             value: content.Prefix.slice(0, -1)});
     });
+
     res.setHeader('Content-Type', 'application/json');
     res.end(JSON.stringify({sets}))
-  })
-
+  });
 });
 
 router.get('/getChoice', function(req, res, next) {
@@ -90,14 +98,7 @@ router.post('/checkKey', function(req, res) {
 })
 
 //Storage functions
-var storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, path.join('public', 'temp'));
-  },
-  filename: (req, file, cb) => {
-    cb(null, file.originalname);
-  }
-});
+var storage = multer.memoryStorage();
 
 const upload = multer({
   storage
@@ -105,23 +106,24 @@ const upload = multer({
 
 router.post('/uploadSet', upload.array("image", 24), (req, res) => {
   let name = req.body.setName;
-  fs.mkdir(path.join(dirPath, name), (err) => {
-    if (err) {
-      console.log(err);
-    }
-  });
+  let files = req.files;
 
-  fs.readdir(path.join(dirPath, 'temp'), function (err, files) {
-    if (err) {
-      console.log(err);
-    }
-
-    files.map((file) => {
-      fs.rename(path.join(dirPath, 'temp', file), path.join(dirPath, name, file), (err) => {
-        console.log(err);
+    let s3bucket = new AWS.S3();
+    for (var i = 0; i < files.length; i++) {
+    var params = {
+        Bucket: process.env.AWS_BUCKET_NAME,
+        Key: path.join(name ,files[i].originalname),
+        Body: files[i].buffer,
+        ContentType: files[i].mimetype,
+        ACL: "public-read"
+      };
+      console.log("params");
+      s3bucket.upload(params, function(err, data) {
+        if (err) {
+          res.status(500).json({ error: true, Message: err });
+        } 
       });
-    });
-  });
+    }
 
     res.json({
       Resp: "success"
@@ -130,15 +132,37 @@ router.post('/uploadSet', upload.array("image", 24), (req, res) => {
 
 router.post('/removeSet', (req, res) => {
   let name = req.body.rname;
-  fs.rmdir(path.join(dirPath, name), { recursive:true },function(err) {
-    if (err) {
-      console.log(err);
-    } else {
-      res.json({
-        Resp: "success"
-      })
-    }
-  })
+  let s3bucket = new AWS.S3();
+  var params = {
+    Bucket: process.env.AWS_BUCKET_NAME,
+    Prefix: name
+  };
+
+  s3bucket.listObjects(params, function(err, data) {
+    if (err) console.log(err);
+
+    // if (data.Contents.length == 0) callback();
+    console.log(data);
+    params = {Bucket: process.env.AWS_BUCKET_NAME};
+    params.Delete = {Objects:[]};
+    
+    data.Contents.forEach(function(content) {
+      console.log(content);
+      params.Delete.Objects.push({Key: content.Key});
+    });
+
+    s3bucket.deleteObjects(params, function(err, data) {
+      if (err) {
+        res.json({
+          Resp: err // an error occurred
+        });
+      } else{
+        res.json({
+          Resp: "success"
+        });
+      }
+    });
+  });
 })
 
 module.exports = router;

@@ -2,6 +2,7 @@ var express = require('express');
 var path = require('path');
 var fs = require('fs');
 var router = express.Router();
+var AWS = require('aws-sdk');
 
 const dirPath = path.join('./', 'public');
 var otherChar = "";
@@ -14,17 +15,20 @@ router.post('/', function(req, res) {
 
   setChosen = req.body.set;
 
-  dir = path.join(dirPath, setChosen);
   let images = [];
+  let s3bucket = new AWS.S3();
+  var params = {
+    Bucket: process.env.AWS_BUCKET_NAME,
+    Prefix: setChosen
+  };
 
-  fs.readdir(dir, function (err, files) {
-    if (err) {
-      console.log(err);
-    }
+  s3bucket.listObjects(params, function(err, data) {
+    if (err) console.log(err);
+    
+    data.Contents.forEach(function(content) {
+      images.push(content.Key);
+    });
 
-    files.forEach(function (file) {
-      images.push(file);
-    })
     if (otherChar) {
       while ( char === otherChar ) {
         let char = images[Math.floor(Math.random() * 24)];

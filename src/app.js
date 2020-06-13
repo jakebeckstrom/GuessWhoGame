@@ -4,7 +4,7 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var cors = require('cors');
-var bodyParser = require('body-parser')
+var bodyParser = require('body-parser');
 
 var testAPIRouter = require('./routes/testAPI');
 var getImagesRouter = require('./routes/getImages');
