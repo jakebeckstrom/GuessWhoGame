@@ -17,7 +17,10 @@ router.get('/', function(req, res, next) {
   if (setChosen !== "") {
 
     let images = [];
-    let s3bucket = new AWS.S3();
+    let s3bucket = new AWS.S3({
+      accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
+    });
     var params = {
       Bucket: process.env.AWS_BUCKET_NAME,
       Prefix: setChosen
