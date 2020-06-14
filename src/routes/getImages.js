@@ -46,7 +46,10 @@ router.get('/', function(req, res, next) {
 
 router.get('/getSets', function(req, res, next) {
   let sets = [];
-  let s3bucket = new AWS.S3();
+  let s3bucket = new AWS.S3({
+      accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
+    });
   var params = {
     Bucket: process.env.AWS_BUCKET_NAME,
     MaxKeys: 20,
@@ -111,7 +114,10 @@ router.post('/uploadSet', upload.array("image", 24), (req, res) => {
   let name = req.body.setName;
   let files = req.files;
 
-    let s3bucket = new AWS.S3();
+    let s3bucket = new AWS.S3({
+      accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
+    });
     for (var i = 0; i < files.length; i++) {
     var params = {
         Bucket: process.env.AWS_BUCKET_NAME,
@@ -135,7 +141,10 @@ router.post('/uploadSet', upload.array("image", 24), (req, res) => {
 
 router.post('/removeSet', (req, res) => {
   let name = req.body.rname;
-  let s3bucket = new AWS.S3();
+  let s3bucket = new AWS.S3({
+      accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
+    });
   var params = {
     Bucket: process.env.AWS_BUCKET_NAME,
     Prefix: name
