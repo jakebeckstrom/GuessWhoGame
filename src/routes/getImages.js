@@ -9,11 +9,26 @@ var dotenv = require('dotenv').config();
 
 
 const dirPath = path.join('./', 'public');
-var setChosen = "";
+// var setChosen = "";
 const secretKey = 'lilbean2020';
 const BUCKET = 'guess-who-static-files';
+const MAX_USERS = 50;
+var players = [];
+var numPlayers = 0;
+var fill = 0;
+for (fill = 0; fill < 50; fill++) {
+  players[fill] = ''
+  //  {
+  //   one: '',
+  //   two: '',
+  //   setChosen: ''
+  // };
+}
 
-router.get('/', function(req, res, next) {
+
+router.post('/', function(req, res) {
+  var setChosen = players[req.body.id].setChosen
+
   if (setChosen !== "") {
 
     let images = [];
@@ -30,9 +45,18 @@ router.get('/', function(req, res, next) {
         images.push(content.Key);
       });
 
+      let one = images[Math.floor(Math.random() * 24)];
+      let two = images[Math.floor(Math.random() * 24)];
+      while (one === two) {
+        two = images[Math.floor(Math.random() * 24)];
+      }
       console.log(images);
       res.setHeader('Content-Type', 'application/json');
-      res.end(JSON.stringify({ images }));
+      res.end(JSON.stringify({ 
+        images, 
+        one,
+        two
+      }));
     });
   } else {
     res.send(JSON.stringify(
@@ -64,9 +88,11 @@ router.get('/getSets', function(req, res, next) {
   });
 });
 
-router.get('/getChoice', function(req, res, next) {
+router.post('/getChoice', function(req, res) {
+  let id = req.body.id;
+  console.log(players[id]);
   res.setHeader('Content-Type', 'application/json');
-    res.send(JSON.stringify({ setChosen }));
+    res.send(JSON.stringify({ setChosen: players[id].setChosen }));
 });
 
 router.get('/reset', function(req, res, next) {
@@ -77,17 +103,15 @@ router.get('/reset', function(req, res, next) {
 })
 
 router.post('/setChoice', function(req, res) {
-  console.log("Make choice");
-  console.log(req.body);
-  setChosen = req.body.set;
-  let message = "Successful" + setChosen;
+  let id = req.body.id;
+  players[id].setChosen = req.body.set;
+  let message = "Successful" + players[id].setChosen;
   res.setHeader('Content-Type', 'application/json');
   res.send(JSON.stringify({ message }));
 })
 
 router.post('/checkKey', function(req, res) {
   let key = req.body.secretKey;
-  console.log(req.body);
   if (key === secretKey) {
     res.setHeader('Content-Type', 'application/json');
     res.send(JSON.stringify({ auth: true }));
@@ -96,6 +120,96 @@ router.post('/checkKey', function(req, res) {
     res.send(JSON.stringify({ auth:false }));
   }
 })
+
+
+
+router.get('/getOpponents', function(req, res, next) {
+  let opps = [];
+  var i = 0;
+  for (i; i < numPlayers; i++) {
+    if (players[i] != '') {
+      opps.push(players[i].one);
+    }
+  }
+  res.setHeader('Content-Type', 'application/json');
+  res.send(JSON.stringify({ opponents: opps }));
+});
+
+
+
+router.post('/addName', function(req, res) {
+  let player = req.body.player;
+  let inSet = [];
+  var n = 0;
+  for (n; n < players.length; n++) {
+    if (players[n] != '') {
+      inSet.push(players[n].one);
+    } 
+  }
+  res.setHeader('Content-Type', 'application/json');
+  if (numPlayers >= 50) {
+    res.end(JSON.stringify({ success: false }));
+  } else if (inSet.includes(player)) {
+    res.end(JSON.stringify({ success: false }));
+  } else {
+    var i = 0;
+    while (players[i] != '' && i < 50) {
+      i++;
+    }
+    numPlayers++;
+    players[i] = {one: player, two: '', setChosen: '' };
+    res.end(JSON.stringify({ success: true, id: i }));
+  }
+});
+
+
+
+router.post('/joinGame', function(req, res) {
+  let player = req.body.player;
+  let opp = req.body.opponent;
+  var i = 0;
+  while (players[i].one != opp) {
+    i++;
+  }
+  if (players[i].one === opp) {
+    players[i].two = player;
+    res.setHeader('Content-Type', 'application/json');
+    res.send(JSON.stringify({ success: true, id: i }));
+  } else {
+    res.setHeader('Content-Type', 'application/json');
+    res.send(JSON.stringify({ success: false }));
+  }
+});
+
+router.post('/removePlayer', function(req, res) {
+  let player = req.body.player;
+  var i = 0;
+  while (players[i].one != player && players[i].two != player ) {
+    i++;
+  }
+  if (i < 50) {
+    players[i] = '';
+    numPlayers--;
+    res.setHeader('Content-Type', 'application/json');
+    res.send(JSON.stringify({ success: true }));
+  } else {
+    res.setHeader('Content-Type', 'application/json');
+    res.send(JSON.stringify({ success: false }));
+  }
+});
+
+router.post('/gameJoined', function(req, res) {
+  let player = req.body.player;
+  var i = 0;
+  while (players[i].one != player) {
+    i++;
+  }
+  let send = players[i].two;
+  res.setHeader('Content-Type', 'application/json');
+  res.end(JSON.stringify({ opponent: send, id: i }));
+})
+
+
 
 //Storage functions
 var storage = multer.memoryStorage();
@@ -117,7 +231,6 @@ router.post('/uploadSet', upload.array("image", 24), (req, res) => {
         ContentType: files[i].mimetype,
         ACL: "public-read"
       };
-      console.log("params");
       s3bucket.upload(params, function(err, data) {
         if (err) {
           res.status(500).json({ error: true, Message: err });
@@ -129,6 +242,8 @@ router.post('/uploadSet', upload.array("image", 24), (req, res) => {
       Resp: "success"
     })
 })
+
+
 
 router.post('/removeSet', (req, res) => {
   let name = req.body.rname;
@@ -142,12 +257,10 @@ router.post('/removeSet', (req, res) => {
     if (err) console.log(err);
 
     // if (data.Contents.length == 0) callback();
-    console.log(data);
     params = {Bucket: process.env.AWS_BUCKET_NAME};
     params.Delete = {Objects:[]};
     
     data.Contents.forEach(function(content) {
-      console.log(content);
       params.Delete.Objects.push({Key: content.Key});
     });
 

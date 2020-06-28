@@ -3,13 +3,26 @@ var path = require('path');
 var fs = require('fs');
 var router = express.Router();
 var AWS = require('aws-sdk');
+const { runInNewContext } = require('vm');
 
 const dirPath = path.join('./', 'public');
 var otherChar = "";
 var char = "";
 var setChosen = "";
+const MAX_USERS = 50;
+var players = [];
+
+function addPlayer(player) {
+  if (players.length >= 50) {
+    return 2;
+  }
 
 
+};
+
+function removePlayer(player) {
+  
+}
 
 router.post('/', function(req, res) {
 
@@ -39,6 +52,18 @@ router.post('/', function(req, res) {
     res.setHeader('Content-Type', 'application/json');
     res.end(JSON.stringify({ char }));
   });
+});
+
+router.get('/getOpponents', function(req, res, next) {
+
+});
+
+router.post('/addName', function(req, res) {
+
+});
+
+router.post('/startGame', function(req, res) {
+
 });
 
 
