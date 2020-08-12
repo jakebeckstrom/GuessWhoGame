@@ -18,11 +18,6 @@ var numPlayers = 0;
 var fill = 0;
 for (fill = 0; fill < 50; fill++) {
   players[fill] = ''
-  //  {
-  //   one: '',
-  //   two: '',
-  //   setChosen: ''
-  // };
 }
 
 
@@ -50,7 +45,6 @@ router.post('/', function(req, res) {
       while (one === two) {
         two = images[Math.floor(Math.random() * 24)];
       }
-      console.log(images);
       res.setHeader('Content-Type', 'application/json');
       res.end(JSON.stringify({ 
         images, 
@@ -76,7 +70,6 @@ router.get('/getSets', function(req, res, next) {
   
   s3bucket.listObjectsV2(params, function(err, data) {
     if (err) console.log(err);
-    console.log(data);
     data.CommonPrefixes.forEach(function(content) {
       sets.push({ key: content.Prefix.slice(0, -1),
               text: content.Prefix.slice(0, -1),
@@ -90,13 +83,13 @@ router.get('/getSets', function(req, res, next) {
 
 router.post('/getChoice', function(req, res) {
   let id = req.body.id;
-  console.log(players[id]);
   res.setHeader('Content-Type', 'application/json');
     res.send(JSON.stringify({ setChosen: players[id].setChosen }));
 });
 
-router.get('/reset', function(req, res, next) {
-  setChosen = "";
+router.post('/reset', function(req, res) {
+  let id = req.body.id;
+  players[id].setChosen = '';
   let message = "Successful" + setChosen;
   res.setHeader('Content-Type', 'application/json');
     res.send(JSON.stringify({ message }));
@@ -135,8 +128,6 @@ router.get('/getOpponents', function(req, res, next) {
   res.send(JSON.stringify({ opponents: opps }));
 });
 
-
-
 router.post('/addName', function(req, res) {
   let player = req.body.player;
   let inSet = [];
@@ -157,7 +148,7 @@ router.post('/addName', function(req, res) {
       i++;
     }
     numPlayers++;
-    players[i] = {one: player, two: '', setChosen: '' };
+    players[i] = {one: player, two: '', setChosen: '', handshakeone: 0, handshaketwo: 0};
     res.end(JSON.stringify({ success: true, id: i }));
   }
 });
@@ -181,22 +172,35 @@ router.post('/joinGame', function(req, res) {
   }
 });
 
-router.post('/removePlayer', function(req, res) {
+router.post('/checkGame', function(req, res) {
   let player = req.body.player;
-  var i = 0;
-  while (players[i].one != player && players[i].two != player ) {
-    i++;
-  }
-  if (i < 50) {
-    players[i] = '';
-    numPlayers--;
-    res.setHeader('Content-Type', 'application/json');
-    res.send(JSON.stringify({ success: true }));
+  let id = req.body.id;
+  res.setHeader('Content-Type', 'application/json');
+  if (players[id] === '') {
+    res.end(JSON.stringify({ end: true }));
   } else {
-    res.setHeader('Content-Type', 'application/json');
-    res.send(JSON.stringify({ success: false }));
+    if (player === players[id].one) {
+      if (players[id].handshakeone < players[id].handshaketwo) {
+        players[id].handshakeone = players[id].handshaketwo;
+      } else {
+        players[id].handshakeone++;
+      }
+    } else {
+      if (players[id].handshaketwo < players[id].handshakeone) {
+        players[id].handshaketwo = players[id].handshakeone;
+      } else {
+        players[id].handshaketwo++;
+      }
+    }
+    let dif = players[id].handshaketwo - players[id].handshakeone;
+    if (dif > 10 || dif < -10 || players[id].handshakeone > 10000) {
+      players[id] = '';
+      res.end(JSON.stringify({ end: true }));
+    } else {
+      res.end(JSON.stringify({ end: false }));
+    }
   }
-});
+})
 
 router.post('/gameJoined', function(req, res) {
   let player = req.body.player;
