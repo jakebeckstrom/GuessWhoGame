@@ -1,2 +1,2 @@
 # GuessWhoGame
-Guess who Game with custom cahracters
+Guess who Game with custom characters
