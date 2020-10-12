@@ -9,7 +9,6 @@ var dotenv = require('dotenv').config();
 
 
 const dirPath = path.join('./', 'public');
-// var setChosen = "";
 const secretKey = 'lilbean2020';
 const BUCKET = 'guess-who-static-files';
 const MAX_USERS = 50;
