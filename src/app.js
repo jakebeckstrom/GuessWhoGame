@@ -1,5 +1,5 @@
 var createError = require('http-errors');
-var express = require('express');
+const express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
@@ -7,10 +7,10 @@ var cors = require('cors');
 var bodyParser = require('body-parser');
 
 var testAPIRouter = require('./routes/testAPI');
-var getImagesRouter = require('./routes/getImages');
-var getCharRouter = require('./routes/getChar');
+var getImagesRouter = require('./routes/game');
+var uploadRouter = require('./routes/upload');
 
-var app = express();
+const app = express();
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -26,8 +26,8 @@ app.use('/public', express.static(path.join('./', 'public')));
 
 
 app.use('/testAPI', testAPIRouter);
-app.use('/getImages', getImagesRouter);
-app.use('/getChar', getCharRouter);
+app.use('/game', getImagesRouter);
+app.use('/upload', uploadRouter);
 
 
 // catch 404 and forward to error handler
