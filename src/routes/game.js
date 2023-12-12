@@ -13,6 +13,9 @@ const s3bucket = new AWS.S3({
 });
 
 router.post('/', function(req, res) {
+  if (req.body.gameId === -1) {
+    return {"message": "no set chosen"}
+  }
   let game = gameList[req.body.gameId];
 
   if (game.setChosen !== "") {
@@ -53,10 +56,10 @@ router.post('/', function(req, res) {
 
 router.get('/getSets', function(req, res, next) {
   let sets = [];
-  let s3bucket = new AWS.S3({
-      accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
-    });
+  // let s3bucket = new AWS.S3({
+  //     accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+  //     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
+  //   });
   var params = {
     Bucket: process.env.AWS_BUCKET_NAME,
     MaxKeys: 20,
